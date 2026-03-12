@@ -17,7 +17,7 @@ class MetadataExtractorService:
     correction and summarization, so extracted metadata enriches those steps.
     """
 
-    def __init__(self, model='gemini-2.0-flash'):
+    def __init__(self, model='gemini-3-flash-preview'):
         self.model = model
         genai.configure(api_key=settings.GOOGLE_API_KEY)
 

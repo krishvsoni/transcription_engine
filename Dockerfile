@@ -12,7 +12,7 @@ COPY requirements.txt /app/requirements.txt
 
 # Install dependencies
 # This layer is cached if requirements don't change
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir --timeout=300 -r /app/requirements.txt
 
 # Copy the rest of the application
 # Done after installing deps to preserve caching
