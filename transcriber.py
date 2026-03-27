@@ -102,6 +102,13 @@ deepgram = click.option(
     show_default=True,
     help="Use deepgram for transcription",
 )
+smallestai_option = click.option(
+    "--smallestai",
+    is_flag=True,
+    default=settings.config.getboolean("smallestai", False),
+    show_default=True,
+    help="Use SmallestAI Pulse STT for transcription",
+)
 diarize = click.option(
     "-M",
     "--diarize",
@@ -265,6 +272,7 @@ add_category = click.option(
 # Available transcription models and services
 @whisper
 @deepgram
+@smallestai_option
 # Available features for transcription services
 @diarize
 @summarize
@@ -306,6 +314,7 @@ def transcribe(
     username: str,
     github: bool,
     deepgram: bool,
+    smallestai: bool,
     summarize: bool,
     diarize: bool,
     upload: bool,
@@ -347,6 +356,7 @@ def transcribe(
         "username": username,
         "github": github,
         "deepgram": deepgram,
+        "smallestai": smallestai,
         "summarize": summarize,
         "diarize": diarize,
         "upload": upload,
@@ -454,7 +464,8 @@ def preprocess(
     type=click.Choice(
         [
             "whisper",
-            "deepgram"
+            "deepgram",
+            "smallestai"
         ]
     )
 )
@@ -487,6 +498,7 @@ def postprocess(
         utils.check_if_valid_file_path(metadata_json_file)
         transcription = Transcription(
             deepgram=service == "deepgram",
+            smallestai=service == "smallestai",
             github=github,
             upload=upload,
             username=username,

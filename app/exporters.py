@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 
 from app.logging import get_logger
 from app.transcript import Transcript
+from app.utils import slugify
 from app import __version__
 
 
@@ -181,7 +182,7 @@ class MarkdownExporter(TranscriptExporter):
         # Construct file path
         file_path = self.construct_file_path(
             directory=output_dir,
-            filename=f"{transcript.title}{suffix}",
+            filename=f"{slugify(transcript.title)}{suffix}",
             file_type="md",
             include_timestamp=add_timestamp,
         )
@@ -295,7 +296,7 @@ class JsonExporter(TranscriptExporter):
         # Construct file path
         file_path = self.construct_file_path(
             directory=output_dir,
-            filename=transcript.title,
+            filename=slugify(transcript.title),
             file_type="json",
             include_timestamp=add_timestamp,
         )
@@ -346,7 +347,7 @@ class TextExporter(TranscriptExporter):
         # Construct file path
         file_path = self.construct_file_path(
             directory=output_dir,
-            filename=f"{transcript.title}{suffix}",
+            filename=f"{slugify(transcript.title)}{suffix}",
             file_type="txt",
             include_timestamp=add_timestamp,
         )

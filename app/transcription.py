@@ -28,6 +28,7 @@ class Transcription:
         github=False,
         summarize=False,
         deepgram=False,
+        smallestai=False,
         diarize=False,
         upload=False,
         model_output_dir="local_models/",
@@ -96,6 +97,10 @@ class Transcription:
         if deepgram:
             self.service = services.Deepgram(
                 summarize, diarize, upload, self.metadata_writer
+            )
+        elif smallestai:
+            self.service = services.SmallestAI(
+                diarize, upload, self.metadata_writer
             )
         else:
             self.service = services.Whisper(model, upload, self.metadata_writer)

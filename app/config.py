@@ -90,6 +90,11 @@ class Settings:
         return self._get_env_variable('OPENAI_API_KEY')
 
     @property
+    def SMALLEST_API_KEY(self):
+        return self._get_env_variable('SMALLEST_API_KEY',
+            "To use SmallestAI Pulse STT you need to define a 'SMALLEST_API_KEY' in your .env file")
+
+    @property
     def YOUTUBE_API_KEY(self):
         return self._get_env_variable('YOUTUBE_API_KEY',
             "To use YouTube channel scanning you need to define a 'YOUTUBE_API_KEY' in your .env file")
