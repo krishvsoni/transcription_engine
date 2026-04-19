@@ -23,6 +23,9 @@ def _get_engine():
         database_url = os.getenv("DATABASE_URL")
         if not database_url:
             return None
+        # SQLAlchemy 2.x requires "postgresql://" — fix the legacy "postgres://" prefix
+        if database_url.startswith("postgres://"):
+            database_url = "postgresql://" + database_url[len("postgres://"):]
         try:
             _engine = create_engine(
                 database_url,

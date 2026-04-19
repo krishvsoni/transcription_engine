@@ -100,6 +100,8 @@ async def add_to_queue(
     github: bool = Form(False),
     deepgram: bool = Form(False),
     smallestai: bool = Form(False),
+    gemini_stt: bool = Form(False),
+    sarvam_stt: bool = Form(False),
     summarize: bool = Form(False),
     diarize: bool = Form(False),
     upload: bool = Form(False),
@@ -126,6 +128,8 @@ async def add_to_queue(
             summarize=summarize,
             deepgram=deepgram,
             smallestai=smallestai,
+            gemini_stt=gemini_stt,
+            sarvam_stt=sarvam_stt,
             diarize=diarize,
             upload=upload,
             model_output_dir=model_output_dir,
@@ -306,9 +310,6 @@ async def get_summaries():
     return {"data": summaries}
 
 
-# =============================================================================
-# Database-backed endpoints (PostgreSQL)
-# =============================================================================
 
 
 def _require_db():

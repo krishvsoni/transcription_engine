@@ -132,7 +132,8 @@ class Settings:
 
     @property
     def GOOGLE_API_KEY(self):
-        return self._get_env_variable("GOOGLE_API_KEY")
+        # Support both GEMINI_API_KEY (official quickstart name) and GOOGLE_API_KEY
+        return os.getenv("GEMINI_API_KEY") or self._get_env_variable("GOOGLE_API_KEY")
 
     @property
     def CLAUDE_API_KEY(self):

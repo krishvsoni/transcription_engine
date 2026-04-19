@@ -29,6 +29,8 @@ class Transcription:
         summarize=False,
         deepgram=False,
         smallestai=False,
+        gemini_stt=False,
+        sarvam_stt=False,
         diarize=False,
         upload=False,
         model_output_dir="local_models/",
@@ -110,6 +112,14 @@ class Transcription:
             )
         elif smallestai:
             self.service = services.SmallestAI(
+                diarize, upload, self.metadata_writer
+            )
+        elif gemini_stt:
+            self.service = services.GeminiSTT(
+                diarize, upload, self.metadata_writer
+            )
+        elif sarvam_stt:
+            self.service = services.SarvamSTT(
                 diarize, upload, self.metadata_writer
             )
         else:

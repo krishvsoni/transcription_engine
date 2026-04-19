@@ -7,6 +7,16 @@ from app.logging import get_logger
 from app.services.database_service import get_database_service
 
 
+
+class RSSFeedCreate(BaseModel):
+    name: str
+    url: str
+    loc: str = "podcast"
+    category: list[str] = ["bitcoin"]
+    tags: list[str] = ["bitcoin"]
+    active: bool = True
+
+
 logger = get_logger()
 router = APIRouter(tags=["Ingestion"])
 
@@ -210,3 +220,84 @@ async def list_runs(limit: int = 50):
     db = _get_db()
     data = db.list_ingestion_runs(limit=limit)
     return {"data": data}
+
+
+@router.get("/rss/feeds")
+async def list_rss_feeds():
+    """List all registered RSS feeds with their last-poll timestamp and known
+    episode count."""
+    from app.services.rss_poller import RSSPoller
+    poller = RSSPoller()
+    return {"data": poller.list_feeds()}
+
+
+@router.post("/rss/feeds")
+async def add_rss_feed(feed: RSSFeedCreate):
+    """Register a new RSS feed for automatic polling.
+
+    The feed will be picked up on the next scheduled poll cycle or when
+    POST /ingestion/rss/poll is called manually.
+    """
+    from app.services.rss_poller import RSSPoller
+    try:
+        poller = RSSPoller()
+        result = poller.add_feed(feed.model_dump())
+        return {"status": "success", "data": result}
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to add RSS feed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/rss/feeds/{feed_id}")
+async def remove_rss_feed(feed_id: str):
+    """Remove a feed from the polling registry."""
+    from app.services.rss_poller import RSSPoller
+    poller = RSSPoller()
+    if not poller.remove_feed(feed_id):
+        raise HTTPException(status_code=404, detail=f"Feed '{feed_id}' not found.")
+    return {"status": "success", "message": f"Feed '{feed_id}' removed."}
+
+
+@router.post("/rss/poll")
+async def poll_all_rss_feeds():
+    """Manually trigger an RSS poll across all active feeds right now.
+
+    Useful for testing or triggering an immediate check outside the
+    scheduled 24-hour cycle.
+    """
+    from app.services.rss_poller import RSSPoller
+    try:
+        poller = RSSPoller()
+        result = poller.poll_all()
+        return {"status": "success", **result}
+    except Exception as e:
+        logger.error(f"RSS poll failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/rss/poll/{feed_id}")
+async def poll_single_rss_feed(feed_id: str):
+    """Manually poll a single RSS feed by its ID."""
+    from app.services.rss_poller import RSSPoller
+    try:
+        poller = RSSPoller()
+        result = poller.poll_feed_by_id(feed_id)
+        return {"status": "success", **result}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"RSS poll failed for feed {feed_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Scheduler status
+
+@router.get("/scheduler/status")
+async def get_scheduler_status():
+    """Return the current background scheduler state and next run times
+    for each scheduled job (channel scan, classify, RSS poll, conference
+    discovery)."""
+    from app.scheduler import get_scheduler_status
+    return get_scheduler_status()
